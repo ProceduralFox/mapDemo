@@ -12,20 +12,10 @@ type Props = {
   selectedMapCoordinates: number[];
 };
 
-const PopupContent = ({
-  map,
-  state,
-  dispatch,
-  popupRef,
-  selectedMapCoordinates,
-}: Props) => {
-  const hideOverlay = () => {
-    // TODO: does thsi need to happen
-    map.getOverlays().forEach((overlay) => {
-      overlay.setPosition(undefined);
-    });
-  };
+const PopupContent = ({ state, dispatch, selectedMapCoordinates }: Props) => {
+  // TODO: probably extract to separate components
 
+  //TODO: more options for polyline
   if (state.currentlySelectedTool === 'length') {
     return (
       <div>
@@ -37,7 +27,6 @@ const PopupContent = ({
               type: 'length start point',
               payload: toLonLat(selectedMapCoordinates),
             });
-            hideOverlay();
           }}
         >
           Place Start Point
@@ -49,7 +38,6 @@ const PopupContent = ({
               type: 'length end point',
               payload: toLonLat(selectedMapCoordinates),
             });
-            hideOverlay();
           }}
         >
           Place End Point
@@ -69,7 +57,6 @@ const PopupContent = ({
               type: 'angle start',
               payload: toLonLat(selectedMapCoordinates),
             });
-            hideOverlay();
           }}
         >
           Place Shared Point
@@ -81,7 +68,6 @@ const PopupContent = ({
               type: 'angle end 1',
               payload: toLonLat(selectedMapCoordinates),
             });
-            hideOverlay();
           }}
         >
           Place End of First Line
@@ -93,7 +79,6 @@ const PopupContent = ({
               type: 'angle end 2',
               payload: toLonLat(selectedMapCoordinates),
             });
-            hideOverlay();
           }}
         >
           Place End of Second Line
@@ -112,7 +97,6 @@ const PopupContent = ({
               type: 'polyline add',
               payload: toLonLat(selectedMapCoordinates),
             });
-            hideOverlay();
           }}
         >
           Append a new point

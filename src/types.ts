@@ -24,7 +24,7 @@ export interface ILengthState {
   unit: ILengthUnits;
 }
 
-type ILengthUnits = 'kilometers' | 'miles';
+export type ILengthUnits = 'kilometers' | 'miles';
 
 export interface IAngleState {
   sharedPoint: WGS84point | null;
@@ -34,7 +34,7 @@ export interface IAngleState {
   angleUnit: IAngleUnits;
 }
 
-type IAngleUnits = 'deg' | 'rad';
+export type IAngleUnits = 'deg' | 'rad';
 
 export interface IPolylineState {
   points: WGS84point[];
@@ -46,8 +46,10 @@ export type IDispatchActions =
   | IDispatchActionAngleUnit
   | IDispatchActionTool
   | IDispatchActionSource
+  | IDispatchPolylineMove
+  | IDispatchLastClickedCoords
   | IDispatchPolylineRemove
-  | IDispatchLastClickedCoords;
+  | IDispatchPolylineReplace;
 
 interface IDispatchActionStandard {
   type:
@@ -56,8 +58,7 @@ interface IDispatchActionStandard {
     | 'angle start'
     | 'angle end 1'
     | 'angle end 2'
-    | 'polyline add'
-    | 'polyline remove';
+    | 'polyline add';
   payload: WGS84point;
 }
 
@@ -86,7 +87,7 @@ interface IDispatchActionSource {
   payload: IOnlineMapSource;
 }
 
-interface IDispatchPolylineRemove {
+interface IDispatchPolylineMove {
   type: 'polyline move';
   payload: {
     newPosition: WGS84point;
@@ -94,8 +95,18 @@ interface IDispatchPolylineRemove {
   };
 }
 
-// TODO: maybe make this also a choice?
+interface IDispatchPolylineRemove {
+  type: 'polyline remove';
+  payload: {
+    index: number;
+  };
+}
+
+interface IDispatchPolylineReplace {
+  type: 'polyline replace';
+  payload: WGS84point[];
+}
+
 // using WGS84 as the user display and state internal value due to being
-// most recognizable
-// [lat, long]
-type WGS84point = number[];
+// most recognizable, in shape of [long, lat]
+export type WGS84point = number[];

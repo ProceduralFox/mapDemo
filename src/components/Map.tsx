@@ -11,6 +11,7 @@ import PopupContent from './PopupContent';
 import TextInputsLength from './TextInputsLength';
 import type { ChangeEvent } from 'react';
 import { IOnlineMapSource, ITool } from '../types';
+import Tabs from './Tabs';
 
 const MapComponent = () => {
   // TODO: maybe get initial arg from localstorage
@@ -36,8 +37,6 @@ const MapComponent = () => {
   };
 
   const handleToolSelectOnChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    e.target.value;
-
     if (['length', 'angle', 'polyline'].includes(e.target.value)) {
       dispatch({
         type: 'tool',
@@ -70,7 +69,6 @@ const MapComponent = () => {
     setMapInstance(map);
     return () => map.setTarget(undefined);
   }, []);
-  console.log('render in parent');
 
   useEffect(() => {
     // reconcile the map renderer with react state
@@ -95,7 +93,12 @@ const MapComponent = () => {
         </div>
         <div>
           <label htmlFor="source">Selected Tool</label>
-          <select name="" id="tool" onChange={handleToolSelectOnChange}>
+          <select
+            value={appState.currentlySelectedTool}
+            name=""
+            id="tool"
+            onChange={handleToolSelectOnChange}
+          >
             <option value="length">Length & Azimuth</option>
             <option value="angle">Angle between lines with shared point</option>
             <option value="polyline">
@@ -123,16 +126,8 @@ const MapComponent = () => {
           border: '2px solid #646cffaa',
         }}
       >
-        inputs and stuff
-        {((appState.lengthState.lineLength as number) / 1000)
-          .toFixed(2)
-          .toString()}
-        <div>
-          <TextInputsLength
-            dispatch={dispatch}
-            state={appState}
-          ></TextInputsLength>
-        </div>
+        <Tabs dispatch={dispatch} state={appState}></Tabs>
+        <div></div>
       </div>
     </div>
   );

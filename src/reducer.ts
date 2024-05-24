@@ -94,29 +94,19 @@ export default function reducer(state: IAppState, action: IDispatchActions) {
       newState.polylineState.points.push(action.payload);
       break;
     case 'polyline remove':
-      // TODO: reconsider this assumption
-
-      // assuming that in a co-ordinate system referencing physical space
-      // no point can occupy the same coordinates that another point can
-      // there is no need for extra point indentifier and it can be
-      // filtered naively based on the positon
-
-      // this is a reasonably large assumption
       newState.polylineState.points = newState.polylineState.points.filter(
-        (point) => {
-          return (
-            point[0] === action.payload[0] && point[1] === action.payload[1]
-          );
-        }
+        (point, index) => index !== action.payload.index
       );
       break;
     case 'polyline move':
-      // TODO: double check coherence with other polyline dispatches
       {
         const { newPosition, pointToMove } = action.payload;
 
         newState.polylineState.points[pointToMove] = newPosition;
       }
+      break;
+    case 'polyline replace':
+      newState.polylineState.points = action.payload;
       break;
     case 'map click':
       newState.meta.lastClickedCoordinates = action.payload;

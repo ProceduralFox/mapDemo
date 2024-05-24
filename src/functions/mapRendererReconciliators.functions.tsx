@@ -1,7 +1,6 @@
 import {
   IAngleState,
   IAppState,
-  IDispatchActions,
   ILengthState,
   IOnlineMapSource,
   IPolylineState,
@@ -11,9 +10,7 @@ import { LineString, Point } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
 import { fromLonLat, toLonLat } from 'ol/proj';
 import VectorSource from 'ol/source/Vector';
-import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-
-// TODO: check if dispatch gets used, ideally not
+import type { Dispatch, MutableRefObject } from 'react';
 
 export function redrawSource(newSource: IOnlineMapSource, map: Map) {}
 
@@ -65,7 +62,6 @@ function removeNonTileLayers(map: Map) {
   });
 }
 
-// TODO: param consistency of state with other draw functions
 function drawLengthFeatures(map: Map, lengthState: ILengthState) {
   const vectorSource = new VectorSource();
   const vectorLayer = new VectorLayer({
