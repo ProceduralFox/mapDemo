@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { IAppState, IDispatchActions } from '../types';
 import type { Dispatch } from 'react';
-import { toLonLat } from 'ol/proj';
+import { useEffect, useState } from 'react';
+import { IAppState, IDispatchActions } from '../types';
 type Props = {
   state: IAppState;
   dispatch: Dispatch<IDispatchActions>;

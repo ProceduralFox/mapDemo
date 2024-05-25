@@ -1,17 +1,17 @@
 // src/MapComponent.js
-import { useEffect, useReducer, useRef, useState } from 'react';
-import 'ol/ol.css';
 import { Map, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
-import XYZ from 'ol/source/XYZ';
+import 'ol/ol.css';
 import { fromLonLat } from 'ol/proj';
-import reducer, { initializer } from '../functions/reducer';
-import { redrawMap } from '../functions/redrawMap';
-import PopupContent from './PopupContent';
+import XYZ from 'ol/source/XYZ';
 import type { ChangeEvent } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
+import { redrawMap } from '../functions/redrawMap';
+import reducer, { initializer } from '../functions/reducer';
 import { IOnlineMapSource, ITool } from '../types';
-import Tabs from './Tabs';
 import ComputedValuesDisplay from './ComputedValuesDisplay';
+import PopupContent from './PopupContent';
+import Tabs from './Tabs';
 
 const MapComponent = () => {
   const [appState, dispatch] = useReducer(reducer, undefined, initializer);

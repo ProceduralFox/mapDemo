@@ -1,6 +1,6 @@
 import { useEffect, useState, type Dispatch, type FormEvent } from 'react';
-import type { IAngleState, IDispatchActions, IAngleUnits } from '../types';
 import { latInputProps, longInputProps } from '../functions/utils';
+import type { IAngleState, IAngleUnits, IDispatchActions } from '../types';
 
 type Props = {
   angleState: IAngleState;

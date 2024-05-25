@@ -1,8 +1,8 @@
 import type { Map } from 'ol';
-import type { IAppState, IDispatchActions } from '../types';
-import type { Dispatch } from 'react';
-import { toLonLat } from 'ol/proj';
 import { toStringHDMS } from 'ol/coordinate';
+import { toLonLat } from 'ol/proj';
+import type { Dispatch } from 'react';
+import type { IAppState, IDispatchActions } from '../types';
 
 type Props = {
   map: Map;

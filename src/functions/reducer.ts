@@ -1,5 +1,5 @@
-import type { IAppState, IDispatchActions, WGS84point } from '../types';
 import { getDistance } from 'ol/sphere';
+import type { IAppState, IDispatchActions, WGS84point } from '../types';
 import { toDegrees, toRadians } from './utils';
 
 export default function reducer(state: IAppState, action: IDispatchActions) {

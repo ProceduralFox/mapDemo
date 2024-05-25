@@ -1,7 +1,7 @@
-import { ILengthState } from '../types';
 import { useEffect, useState, type Dispatch, type FormEvent } from 'react';
-import type { IDispatchActions, ILengthUnits, IAngleUnits } from '../types';
 import { latInputProps, longInputProps } from '../functions/utils';
+import type { IAngleUnits, IDispatchActions, ILengthUnits } from '../types';
+import { ILengthState } from '../types';
 
 type Props = {
   lengthState: ILengthState;

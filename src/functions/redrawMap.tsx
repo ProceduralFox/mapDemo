@@ -1,10 +1,3 @@
-import {
-  IAngleState,
-  IAppState,
-  ILengthState,
-  IOnlineMapSource,
-  IPolylineState,
-} from '../types';
 import { Feature, Overlay, type Map } from 'ol';
 import { LineString, Point } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
@@ -12,6 +5,13 @@ import { fromLonLat } from 'ol/proj';
 import { XYZ } from 'ol/source';
 import VectorSource from 'ol/source/Vector';
 import type { Dispatch, MutableRefObject } from 'react';
+import {
+  IAngleState,
+  IAppState,
+  ILengthState,
+  IOnlineMapSource,
+  IPolylineState,
+} from '../types';
 
 export function redrawSource(newSourceLink: IOnlineMapSource, map: Map) {
   // since redrawing the tile layer source is more expensive and

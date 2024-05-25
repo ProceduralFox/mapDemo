@@ -1,8 +1,8 @@
 import { useEffect, useState, type Dispatch, type FormEvent } from 'react';
-import type { IDispatchActions, IPolylineState, WGS84point } from '../types';
 import { latInputProps, longInputProps } from '../functions/utils';
-import RemoveIcon from './icons/RemoveIcon';
+import type { IDispatchActions, IPolylineState, WGS84point } from '../types';
 import AddIcon from './icons/AddIcon';
+import RemoveIcon from './icons/RemoveIcon';
 
 type Props = {
   polylineState: IPolylineState;

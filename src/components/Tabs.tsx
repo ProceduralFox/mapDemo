@@ -1,9 +1,8 @@
-import { IAppState, ITool } from '../types';
-import LengthForm from './LengthForm';
-import type { IDispatchActions } from '../types';
 import type { Dispatch } from 'react';
-import TextInputsLength from './TextInputsLength';
+import type { IDispatchActions } from '../types';
+import { IAppState } from '../types';
 import AngleForm from './AngleForm';
+import LengthForm from './LengthForm';
 import PolylineForm from './PolylineForm';
 
 type Props = {
