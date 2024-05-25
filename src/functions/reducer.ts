@@ -105,7 +105,7 @@ export default function reducer(state: IAppState, action: IDispatchActions) {
         if (nearestPointIndex === null) break;
 
         newState.polylineState.points = newState.polylineState.points.filter(
-          (value, index) => index !== nearestPointIndex
+          (_, index) => index !== nearestPointIndex
         );
       }
       break;

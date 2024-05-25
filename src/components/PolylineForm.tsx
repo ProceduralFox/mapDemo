@@ -1,6 +1,6 @@
 import { useEffect, useState, type Dispatch, type FormEvent } from 'react';
 import { latInputProps, longInputProps } from '../functions/utils';
-import type { IDispatchActions, IPolylineState, WGS84point } from '../types';
+import type { IDispatchActions, IPolylineState } from '../types';
 import AddIcon from './icons/AddIcon';
 import RemoveIcon from './icons/RemoveIcon';
 
@@ -37,12 +37,10 @@ const PolylineForm = ({ dispatch, polylineState }: Props) => {
   };
 
   const removePoint = (index: number) => {
-    setPointsState(
-      pointsState.filter((value, pointIndex) => pointIndex !== index)
-    );
+    setPointsState(pointsState.filter((_, pointIndex) => pointIndex !== index));
   };
 
-  const renderPointRow = (point: WGS84point, index: number) => {
+  const renderPointRow = (index: number) => {
     return (
       <div key={index} className="inputRow">
         <div className="inputLabel">
@@ -111,8 +109,8 @@ const PolylineForm = ({ dispatch, polylineState }: Props) => {
           className="polylineForm"
           onSubmit={handleSubmit}
         >
-          {pointsState.map((point, index) => {
-            return renderPointRow(point, index);
+          {pointsState.map((_, index) => {
+            return renderPointRow(index);
           })}
         </form>
         <form
