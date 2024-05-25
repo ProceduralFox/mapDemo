@@ -9,7 +9,6 @@ export type IAppState = {
   };
 };
 
-// TODO: maybe type this fancier with an enum
 export type IOnlineMapSource =
   | 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
   | 'https://{a-d}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
@@ -19,9 +18,10 @@ export type ITool = 'length' | 'angle' | 'polyline';
 export interface ILengthState {
   startPoint: WGS84point | null;
   endPoint: WGS84point | null;
-  lineLength: Number;
-  lineAzimuth: Number;
-  unit: ILengthUnits;
+  lineLength: number;
+  lineAzimuth: number | null;
+  lengthUnit: ILengthUnits;
+  azimuthUnit: IAngleUnits;
 }
 
 export type ILengthUnits = 'kilometers' | 'miles';
@@ -30,7 +30,7 @@ export interface IAngleState {
   sharedPoint: WGS84point | null;
   firstEnd: WGS84point | null;
   secondEnd: WGS84point | null;
-  angle: string;
+  angle: number | null;
   angleUnit: IAngleUnits;
 }
 
@@ -46,10 +46,8 @@ export type IDispatchActions =
   | IDispatchActionAngleUnit
   | IDispatchActionTool
   | IDispatchActionSource
-  | IDispatchPolylineMove
-  | IDispatchLastClickedCoords
-  | IDispatchPolylineRemove
-  | IDispatchPolylineReplace;
+  | IDispatchActionLastClickedCoords
+  | IDispatchActionPolylineReplace;
 
 interface IDispatchActionStandard {
   type:
@@ -58,11 +56,13 @@ interface IDispatchActionStandard {
     | 'angle start'
     | 'angle end 1'
     | 'angle end 2'
-    | 'polyline add';
+    | 'polyline add'
+    | 'polyline move nearest'
+    | 'polyline remove nearest';
   payload: WGS84point;
 }
 
-interface IDispatchLastClickedCoords {
+interface IDispatchActionLastClickedCoords {
   type: 'map click';
   payload: [number, number];
 }
@@ -73,7 +73,7 @@ interface IDispatchActionLengthUnit {
 }
 
 interface IDispatchActionAngleUnit {
-  type: 'angle unit';
+  type: 'angle unit' | 'azimuth unit';
   payload: IAngleUnits;
 }
 
@@ -87,22 +87,7 @@ interface IDispatchActionSource {
   payload: IOnlineMapSource;
 }
 
-interface IDispatchPolylineMove {
-  type: 'polyline move';
-  payload: {
-    newPosition: WGS84point;
-    pointToMove: number;
-  };
-}
-
-interface IDispatchPolylineRemove {
-  type: 'polyline remove';
-  payload: {
-    index: number;
-  };
-}
-
-interface IDispatchPolylineReplace {
+interface IDispatchActionPolylineReplace {
   type: 'polyline replace';
   payload: WGS84point[];
 }

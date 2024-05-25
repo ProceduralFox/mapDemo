@@ -38,23 +38,32 @@ const Tabs = ({ state, dispatch }: Props) => {
         <button
           type="button"
           onClick={() => dispatch({ type: 'tool', payload: 'length' })}
+          className={`tab ${
+            state.currentlySelectedTool === 'length' ? 'tabSelected' : ''
+          }`}
         >
           Length
         </button>
         <button
           type="button"
           onClick={() => dispatch({ type: 'tool', payload: 'angle' })}
+          className={`tab ${
+            state.currentlySelectedTool === 'angle' ? 'tabSelected' : ''
+          }`}
         >
           Angle
         </button>
         <button
           type="button"
           onClick={() => dispatch({ type: 'tool', payload: 'polyline' })}
+          className={`tab ${
+            state.currentlySelectedTool === 'polyline' ? 'tabSelected' : ''
+          }`}
         >
           Polyline
         </button>
       </div>
-      {renderTabContent()}
+      <div className="tabContent">{renderTabContent()}</div>
     </div>
   );
 };

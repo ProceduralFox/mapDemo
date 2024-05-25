@@ -1,7 +1,7 @@
 import { ILengthState } from '../types';
 import { useEffect, useState, type Dispatch, type FormEvent } from 'react';
-import type { IDispatchActions, ILengthUnits } from '../types';
-import { latInputProps, longInputProps } from '../utils';
+import type { IDispatchActions, ILengthUnits, IAngleUnits } from '../types';
+import { latInputProps, longInputProps } from '../functions/utils';
 
 type Props = {
   lengthState: ILengthState;
@@ -17,16 +17,26 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
   const [endLong, setEndLong] = useState(initialComponentState.endLong);
   const [endLat, setEndLat] = useState(initialComponentState.endLat);
 
-  const [unit, setUnit] = useState(initialComponentState.metric);
+  const [lengthUnit, setLengthUnit] = useState(
+    initialComponentState.lengthUnit
+  );
+
+  const [azimuthUnit, setAzimuthUnit] = useState(
+    initialComponentState.azimuthUnit
+  );
 
   const resetState = () => {
     // remove local changes by defaulting to values from appState
-    const { startLat, startLong, endLat, endLong } = initialComponentState;
+    const { startLat, startLong, endLat, endLong, azimuthUnit, lengthUnit } =
+      initialComponentState;
 
     setStartLat(startLat);
     setStartLong(startLong);
     setEndLat(endLat);
     setEndLong(endLong);
+
+    setLengthUnit(lengthUnit);
+    setAzimuthUnit(azimuthUnit);
   };
 
   useEffect(() => {
@@ -35,32 +45,33 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
   }, [lengthState]);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    console.log('this ran tho');
     e.preventDefault();
-    // TODO: accepts zeroes, in other places too
-    if (startLat && startLong) {
-      dispatch({
-        type: 'length start point',
-        payload: [Number(startLong), Number(startLat)],
-      });
-    }
-    if (endLat && endLong) {
-      dispatch({
-        type: 'length end point',
-        payload: [Number(endLong), Number(endLat)],
-      });
-    }
+
+    dispatch({
+      type: 'length start point',
+      payload: [Number(startLong), Number(startLat)],
+    });
+
+    dispatch({
+      type: 'length end point',
+      payload: [Number(endLong), Number(endLat)],
+    });
 
     dispatch({
       type: 'length unit',
-      payload: unit,
+      payload: lengthUnit,
+    });
+
+    dispatch({
+      type: 'azimuth unit',
+      payload: azimuthUnit,
     });
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <div>
+    <form onSubmit={handleSubmit} className="formWrapper">
+      <div className="inputRow">
+        <div className="inputLabel">
           <label htmlFor="startLong">Start point Longitude</label>
           <input
             type="number"
@@ -70,7 +81,7 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
             {...longInputProps}
           />
         </div>
-        <div>
+        <div className="inputLabel">
           <label htmlFor="startLat">Start point Latitude</label>
           <input
             type="number"
@@ -81,8 +92,8 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
           />
         </div>
       </div>
-      <div>
-        <div>
+      <div className="inputRow">
+        <div className="inputLabel">
           <label htmlFor="endLong">End point Longitude</label>
           <input
             type="number"
@@ -92,7 +103,7 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
             {...longInputProps}
           />
         </div>
-        <div>
+        <div className="inputLabel">
           <label htmlFor="endLat">End point Latitude</label>
           <input
             type="number"
@@ -103,21 +114,36 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
           />
         </div>
       </div>
-      <div>
-        {/* {TODO: dynamic options */}
-        <label htmlFor="lengthUnit">Length Display unit</label>
-        <select
-          value={unit}
-          onChange={(e) => setUnit(e.target.value as ILengthUnits)}
-          id="lengthUnit"
-        >
-          <option value="kilometers">Kilometers</option>
-          <option value="miles">Miles</option>
-        </select>
+      <div className="inputRow">
+        <div className="inputLabel">
+          <label htmlFor="lengthUnit">Length Display unit</label>
+          <select
+            value={lengthUnit}
+            onChange={(e) => setLengthUnit(e.target.value as ILengthUnits)}
+            id="lengthUnit"
+          >
+            <option value="kilometers">Kilometers</option>
+            <option value="miles">Miles</option>
+          </select>
+        </div>
+        <div className="inputLabel">
+          <label htmlFor="azimuthUnit">Azimuth Display Unit</label>
+          <select
+            value={azimuthUnit}
+            onChange={(e) => setAzimuthUnit(e.target.value as IAngleUnits)}
+            id="azimuthUnit"
+          >
+            <option value="deg">Degree</option>
+            <option value="rad">Radians</option>
+          </select>
+        </div>
       </div>
-      <div>
-        <button type="submit">Confirm Changes</button>
-        <button type="button" onClick={resetState}>
+
+      <div className="inputRow">
+        <button type="submit" className="buttonPrimary">
+          Confirm Changes
+        </button>
+        <button type="button" onClick={resetState} className="buttonSecondary">
           Discard Changes
         </button>
       </div>
@@ -139,7 +165,8 @@ const getInitialComponentStateValues = (lengthState: ILengthState) => {
       lengthState.endPoint !== null ? lengthState.endPoint[0].toString() : '',
     endLat:
       lengthState.endPoint !== null ? lengthState.endPoint[1].toString() : '',
-    metric: lengthState.unit,
+    lengthUnit: lengthState.lengthUnit,
+    azimuthUnit: lengthState.azimuthUnit,
   };
 };
 

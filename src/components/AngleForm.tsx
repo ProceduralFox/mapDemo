@@ -1,6 +1,6 @@
 import { useEffect, useState, type Dispatch, type FormEvent } from 'react';
 import type { IAngleState, IDispatchActions, IAngleUnits } from '../types';
-import { latInputProps, longInputProps } from '../utils';
+import { latInputProps, longInputProps } from '../functions/utils';
 
 type Props = {
   angleState: IAngleState;
@@ -59,26 +59,20 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // TODO: is this validation not really needed tho?
-    if (startLat && startLong) {
-      dispatch({
-        type: 'angle start',
-        payload: [Number(startLong), Number(startLat)],
-      });
-    }
-    if (firstEndLat && firstEndLong) {
-      dispatch({
-        type: 'angle end 1',
-        payload: [Number(firstEndLong), Number(firstEndLat)],
-      });
-    }
+    dispatch({
+      type: 'angle start',
+      payload: [Number(startLong), Number(startLat)],
+    });
 
-    if (secondEndLat && secondEndLong) {
-      dispatch({
-        type: 'angle end 2',
-        payload: [Number(secondEndLong), Number(secondEndLat)],
-      });
-    }
+    dispatch({
+      type: 'angle end 1',
+      payload: [Number(firstEndLong), Number(firstEndLat)],
+    });
+
+    dispatch({
+      type: 'angle end 2',
+      payload: [Number(secondEndLong), Number(secondEndLat)],
+    });
 
     dispatch({
       type: 'angle unit',
@@ -86,11 +80,10 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
     });
   };
 
-  // TODO: radians and angles
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <div>
+    <form onSubmit={handleSubmit} className="formWrapper">
+      <div className="inputRow">
+        <div className="inputLabel">
           <label htmlFor="startLong">Shared Start Point Longitude</label>
           <input
             type="number"
@@ -100,7 +93,7 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
             {...longInputProps}
           />
         </div>
-        <div>
+        <div className="inputLabel">
           <label htmlFor="startLat">Shared Start Point Latitude</label>
           <input
             type="number"
@@ -111,8 +104,8 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
           />
         </div>
       </div>
-      <div>
-        <div>
+      <div className="inputRow">
+        <div className="inputLabel">
           <label htmlFor="firstEndLong">First Line End Point Longitude</label>
           <input
             type="number"
@@ -122,7 +115,7 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
             {...longInputProps}
           />
         </div>
-        <div>
+        <div className="inputLabel">
           <label htmlFor="firstEndLat">First Line End Point Latitude</label>
           <input
             type="number"
@@ -133,8 +126,8 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
           />
         </div>
       </div>
-      <div>
-        <div>
+      <div className="inputRow">
+        <div className="inputLabel">
           <label htmlFor="secondEndLong">Second Line End Point Longitude</label>
           <input
             type="number"
@@ -144,7 +137,7 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
             {...longInputProps}
           />
         </div>
-        <div>
+        <div className="inputLabel">
           <label htmlFor="secondEndLat">Second Line End Point Latitude</label>
           <input
             type="number"
@@ -155,21 +148,24 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
           />
         </div>
       </div>
-      <div>
-        {/* {TODO: dynamic unit options} */}
-        <label htmlFor="angleUnit">Length Display Unit</label>
-        <select
-          value={unit}
-          onChange={(e) => setUnit(e.target.value as IAngleUnits)}
-          id="angleUnit"
-        >
-          <option value="deg">Degree</option>
-          <option value="rad">Radians</option>
-        </select>
+      <div className="inputRow">
+        <div className="inputLabel">
+          <label htmlFor="angleUnit">Angle Display Unit</label>
+          <select
+            value={unit}
+            onChange={(e) => setUnit(e.target.value as IAngleUnits)}
+            id="angleUnit"
+          >
+            <option value="deg">Degree</option>
+            <option value="rad">Radians</option>
+          </select>
+        </div>
       </div>
-      <div>
-        <button type="submit">Confirm Changes</button>
-        <button type="button" onClick={resetState}>
+      <div className="inputRow">
+        <button type="submit" className="buttonPrimary">
+          Confirm Changes
+        </button>
+        <button type="button" className="buttonSecondary" onClick={resetState}>
           Discard Changes
         </button>
       </div>

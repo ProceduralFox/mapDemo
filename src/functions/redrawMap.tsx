@@ -8,11 +8,48 @@ import {
 import { Feature, Overlay, type Map } from 'ol';
 import { LineString, Point } from 'ol/geom';
 import VectorLayer from 'ol/layer/Vector';
-import { fromLonLat, toLonLat } from 'ol/proj';
+import { fromLonLat } from 'ol/proj';
+import { XYZ } from 'ol/source';
 import VectorSource from 'ol/source/Vector';
 import type { Dispatch, MutableRefObject } from 'react';
 
-export function redrawSource(newSource: IOnlineMapSource, map: Map) {}
+export function redrawSource(newSourceLink: IOnlineMapSource, map: Map) {
+  // since redrawing the tile layer source is more expensive and
+  // visually jarring compared to redrawing the vector layers
+  // this functions ensures that it only happens when the user
+  // actually requests a change of tile source
+
+  map.getAllLayers().forEach((layer) => {
+    const name = layer.get('name');
+
+    if (name === 'tile') {
+      const source = layer.getSource() as XYZ;
+      if (!(source instanceof XYZ)) return;
+
+      const newSource = new XYZ({
+        url: newSourceLink,
+      });
+
+      const oldSourceUrls = source.getUrls();
+      const newSourceUrls = newSource.getUrls();
+
+      // this should never happen, but better be safe
+      if (oldSourceUrls === null || newSourceUrls === null) return;
+
+      const { length } = oldSourceUrls;
+
+      if (length !== newSourceUrls.length) {
+        layer.setSource(newSource);
+      }
+
+      for (let index = 0; index < length; index++) {
+        if (oldSourceUrls[index] !== newSourceUrls[index]) {
+          layer.setSource(newSource);
+        }
+      }
+    }
+  });
+}
 
 export function redrawMap(
   map: Map,
@@ -24,7 +61,7 @@ export function redrawMap(
   removeInteractions(map);
   removeNonTileLayers(map);
 
-  // TODO: change tile layer
+  redrawSource(state.mapSource, map);
 
   // redraw features from state
   switch (state.currentlySelectedTool) {
@@ -204,8 +241,6 @@ function addPopupInteraction(
         },
       },
     });
-
-    // TODO: bug where sometimes after some use overlay stops working, maybe the way it gets removed?
 
     map.addOverlay(overlay);
     map.on('singleclick', function (evt) {

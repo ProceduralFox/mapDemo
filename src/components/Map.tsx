@@ -5,16 +5,15 @@ import { Map, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
 import { fromLonLat } from 'ol/proj';
-import reducer, { initializer } from '../reducer';
-import { redrawMap } from '../functions/mapRendererReconciliators.functions';
+import reducer, { initializer } from '../functions/reducer';
+import { redrawMap } from '../functions/redrawMap';
 import PopupContent from './PopupContent';
-import TextInputsLength from './TextInputsLength';
 import type { ChangeEvent } from 'react';
 import { IOnlineMapSource, ITool } from '../types';
 import Tabs from './Tabs';
+import ComputedValuesDisplay from './ComputedValuesDisplay';
 
 const MapComponent = () => {
-  // TODO: maybe get initial arg from localstorage
   const [appState, dispatch] = useReducer(reducer, undefined, initializer);
 
   const [mapInstance, setMapInstance] = useState<Map | null>(null);
@@ -55,12 +54,11 @@ const MapComponent = () => {
     tileLayer.set('name', 'tile');
 
     const map = new Map({
-      // TODO: naming maybe
       target: 'map-container',
       layers: [tileLayer],
       view: new View({
-        center: fromLonLat([0, 0]), // Center the map at the coordinates [longitude, latitude]
-        zoom: 2, // Initial zoom level
+        center: fromLonLat([16.598303338886936, 49.21156532781483]),
+        zoom: 4,
       }),
     });
 
@@ -82,7 +80,12 @@ const MapComponent = () => {
       <div className="upperToolbar">
         <div>
           <label htmlFor="source">Selected Source</label>
-          <select name="" id="source" onChange={handleSourceSelectOnChange}>
+          <select
+            name=""
+            id="source"
+            onChange={handleSourceSelectOnChange}
+            value={appState.mapSource}
+          >
             <option value="https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png">
               Open Street Maps
             </option>
@@ -91,6 +94,7 @@ const MapComponent = () => {
             </option>
           </select>
         </div>
+        <ComputedValuesDisplay appState={appState}></ComputedValuesDisplay>
         <div>
           <label htmlFor="source">Selected Tool</label>
           <select
@@ -100,15 +104,17 @@ const MapComponent = () => {
             onChange={handleToolSelectOnChange}
           >
             <option value="length">Length & Azimuth</option>
-            <option value="angle">Angle between lines with shared point</option>
-            <option value="polyline">
-              Drawing a Polyline through segments
-            </option>
+            <option value="angle">Angle between lines</option>
+            <option value="polyline">Polyline</option>
           </select>
         </div>
       </div>
-      <div id="map-container" style={{ width: '640px', height: '480px' }}></div>
-      <div ref={popupRef} id="popup" className="popupWrapper">
+      <div
+        id="map-container"
+        style={{ width: '640px', height: '480px' }}
+        className="map"
+      ></div>
+      <div ref={popupRef} id="popup">
         {mapInstance ? (
           <PopupContent
             map={mapInstance}
@@ -119,16 +125,7 @@ const MapComponent = () => {
           />
         ) : null}
       </div>
-      <div
-        style={{
-          width: '640px',
-          height: '480px',
-          border: '2px solid #646cffaa',
-        }}
-      >
-        <Tabs dispatch={dispatch} state={appState}></Tabs>
-        <div></div>
-      </div>
+      <Tabs dispatch={dispatch} state={appState}></Tabs>
     </div>
   );
 };
