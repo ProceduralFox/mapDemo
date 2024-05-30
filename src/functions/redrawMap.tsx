@@ -80,10 +80,8 @@ export function redrawMap(
 }
 
 function removeInteractions(map: Map) {
-  map.getInteractions().forEach((interaction) => {
-    if (interaction.get('customListener') === true) {
-      map.removeInteraction(interaction);
-    }
+  map.getListeners('singleclick')?.forEach((listener) => {
+    map.removeEventListener('singleclick', listener);
   });
 }
 
@@ -246,7 +244,6 @@ function addPopupInteraction(
     map.on('singleclick', function (evt) {
       const coordinate = evt.coordinate;
 
-      popupDiv.setAttribute('test', JSON.stringify(coordinate));
       setSelectedMapCoordinates(coordinate);
       overlay.setPosition(coordinate);
     });

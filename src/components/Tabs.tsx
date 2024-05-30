@@ -71,7 +71,6 @@ const Tabs = ({ state, dispatch }: Props) => {
   };
 
   const polylineSubmit = (points: WGS84point[]) => {
-    console.log('?? !!');
     dispatch({
       type: 'polyline replace',
       payload: [...points],

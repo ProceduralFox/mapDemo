@@ -52,7 +52,6 @@ const PopupContent = ({ state, dispatch, selectedMapCoordinates }: Props) => {
             type="button"
             className="buttonPrimary"
             onClick={() => {
-              console.log();
               dispatch({
                 type: 'angle start',
                 payload: toLonLat(selectedMapCoordinates),
@@ -96,7 +95,6 @@ const PopupContent = ({ state, dispatch, selectedMapCoordinates }: Props) => {
             type="button"
             className="buttonPrimary"
             onClick={() => {
-              console.log(`## ${selectedMapCoordinates}`);
               dispatch({
                 type: 'polyline add',
                 payload: toLonLat(selectedMapCoordinates),

@@ -4,7 +4,7 @@ import { toDegrees, toRadians } from './utils';
 
 export default function reducer(state: IAppState, action: IDispatchActions) {
   const newState = structuredClone(state);
-  console.log(newState.polylineState);
+
   switch (action.type) {
     case 'tool':
       newState.currentlySelectedTool = action.payload;
@@ -94,7 +94,6 @@ export default function reducer(state: IAppState, action: IDispatchActions) {
       break;
 
     case 'polyline add':
-      console.log(`# ${action.payload}`);
       newState.polylineState.points.push(action.payload);
       break;
     case 'polyline remove nearest':
