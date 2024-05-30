@@ -1,71 +1,68 @@
-import { useEffect, useState, type Dispatch, type FormEvent } from 'react';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { latInputProps, longInputProps } from '../functions/utils';
-import type { IAngleUnits, IDispatchActions, ILengthUnits } from '../types';
+import type { IAngleUnits, ILengthUnits, WGS84point } from '../types';
 import { ILengthState } from '../types';
 
 type Props = {
   lengthState: ILengthState;
-  dispatch: Dispatch<IDispatchActions>;
+  submitCallback: (
+    startPoint: WGS84point,
+    endPoint: WGS84point,
+    lenghtUnit: ILengthUnits,
+    azimuthUnit: IAngleUnits
+  ) => void;
 };
 
-const LengthForm = ({ dispatch, lengthState }: Props) => {
-  const initialComponentState = getInitialComponentStateValues(lengthState);
+const LengthForm = ({ submitCallback, lengthState }: Props) => {
+  const parsedPropValues = getParsedPropValues(lengthState);
 
-  const [startLong, setStartLong] = useState(initialComponentState.startLong);
-  const [startLat, setStartLat] = useState(initialComponentState.startLat);
-
-  const [endLong, setEndLong] = useState(initialComponentState.endLong);
-  const [endLat, setEndLat] = useState(initialComponentState.endLat);
-
-  const [lengthUnit, setLengthUnit] = useState(
-    initialComponentState.lengthUnit
+  const [lastRenderPropValues, setLastRenderPropValues] = useState({
+    ...parsedPropValues,
+  });
+  const { propsChanged, changedProps } = propComparison(
+    parsedPropValues,
+    lastRenderPropValues
   );
 
-  const [azimuthUnit, setAzimuthUnit] = useState(
-    initialComponentState.azimuthUnit
-  );
+  const [formData, setFormData] = useState({ ...parsedPropValues });
 
-  const resetState = () => {
-    // remove local changes by defaulting to values from appState
-    const { startLat, startLong, endLat, endLong, azimuthUnit, lengthUnit } =
-      initialComponentState;
-
-    setStartLat(startLat);
-    setStartLong(startLong);
-    setEndLat(endLat);
-    setEndLong(endLong);
-
-    setLengthUnit(lengthUnit);
-    setAzimuthUnit(azimuthUnit);
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  useEffect(() => {
-    // reconcile input state with changes from map clicks
-    resetState();
-  }, [lengthState]);
+  const handlePropChange = () => {
+    const newState = {
+      ...formData,
+    };
+
+    for (const prop of changedProps) {
+      typeGuardedStateUpdate(prop, parsedPropValues, newState);
+    }
+
+    setFormData({ ...newState });
+  };
+
+  const handleFormDiscard = () => {
+    setFormData({ ...parsedPropValues });
+  };
+
+  if (propsChanged) {
+    setLastRenderPropValues(parsedPropValues);
+    handlePropChange();
+  }
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    dispatch({
-      type: 'length start point',
-      payload: [Number(startLong), Number(startLat)],
-    });
-
-    dispatch({
-      type: 'length end point',
-      payload: [Number(endLong), Number(endLat)],
-    });
-
-    dispatch({
-      type: 'length unit',
-      payload: lengthUnit,
-    });
-
-    dispatch({
-      type: 'azimuth unit',
-      payload: azimuthUnit,
-    });
+    submitCallback(
+      [Number(formData.startLong), Number(formData.startLat)],
+      [Number(formData.endLong), Number(formData.endLat)],
+      formData.lengthUnit,
+      formData.azimuthUnit
+    );
   };
 
   return (
@@ -76,8 +73,9 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
           <input
             type="number"
             id="startLong"
-            value={startLong}
-            onChange={(e) => setStartLong(e.target.value)}
+            name="startLong"
+            value={formData.startLong}
+            onChange={handleInputChange}
             {...longInputProps}
           />
         </div>
@@ -86,8 +84,9 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
           <input
             type="number"
             id="startLat"
-            value={startLat}
-            onChange={(e) => setStartLat(e.target.value)}
+            name="startLat"
+            value={formData.startLat}
+            onChange={handleInputChange}
             {...latInputProps}
           />
         </div>
@@ -98,8 +97,9 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
           <input
             type="number"
             id="endLong"
-            value={endLong}
-            onChange={(e) => setEndLong(e.target.value)}
+            name="endLong"
+            value={formData.endLong}
+            onChange={handleInputChange}
             {...longInputProps}
           />
         </div>
@@ -108,8 +108,9 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
           <input
             type="number"
             id="endLat"
-            value={endLat}
-            onChange={(e) => setEndLat(e.target.value)}
+            name="endLat"
+            value={formData.endLat}
+            onChange={handleInputChange}
             {...latInputProps}
           />
         </div>
@@ -118,8 +119,9 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
         <div className="inputLabel">
           <label htmlFor="lengthUnit">Length Display unit</label>
           <select
-            value={lengthUnit}
-            onChange={(e) => setLengthUnit(e.target.value as ILengthUnits)}
+            name="lengthUnit"
+            value={formData.lengthUnit}
+            onChange={handleInputChange}
             id="lengthUnit"
           >
             <option value="kilometers">Kilometers</option>
@@ -129,8 +131,9 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
         <div className="inputLabel">
           <label htmlFor="azimuthUnit">Azimuth Display Unit</label>
           <select
-            value={azimuthUnit}
-            onChange={(e) => setAzimuthUnit(e.target.value as IAngleUnits)}
+            name="azimuthUnit"
+            value={formData.azimuthUnit}
+            onChange={handleInputChange}
             id="azimuthUnit"
           >
             <option value="deg">Degree</option>
@@ -143,7 +146,11 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
         <button type="submit" className="buttonPrimary">
           Confirm Changes
         </button>
-        <button type="button" onClick={resetState} className="buttonSecondary">
+        <button
+          type="button"
+          onClick={handleFormDiscard}
+          className="buttonSecondary"
+        >
           Discard Changes
         </button>
       </div>
@@ -151,7 +158,9 @@ const LengthForm = ({ dispatch, lengthState }: Props) => {
   );
 };
 
-const getInitialComponentStateValues = (lengthState: ILengthState) => {
+export default LengthForm;
+
+const getParsedPropValues = (lengthState: ILengthState) => {
   return {
     startLong:
       lengthState.startPoint !== null
@@ -170,4 +179,42 @@ const getInitialComponentStateValues = (lengthState: ILengthState) => {
   };
 };
 
-export default LengthForm;
+type IParsedPropValues = ReturnType<typeof getParsedPropValues>;
+
+interface IPropComparisonReturn {
+  propsChanged: boolean;
+  changedProps: (keyof IParsedPropValues)[];
+}
+
+const propComparison = (
+  newState: IParsedPropValues,
+  oldState: IParsedPropValues
+) => {
+  const keyNames = Object.getOwnPropertyNames(newState);
+  const result: IPropComparisonReturn = {
+    propsChanged: false,
+    changedProps: [],
+  };
+
+  for (const name of keyNames) {
+    if (
+      !Object.is(
+        newState[name as keyof IParsedPropValues],
+        oldState[name as keyof IParsedPropValues]
+      )
+    ) {
+      result.propsChanged = true;
+      result.changedProps.push(name as keyof IParsedPropValues);
+    }
+  }
+
+  return result;
+};
+
+function typeGuardedStateUpdate<K extends keyof IParsedPropValues>(
+  propName: K,
+  props: IParsedPropValues,
+  newState: IParsedPropValues
+): void {
+  newState[propName] = props[propName];
+}

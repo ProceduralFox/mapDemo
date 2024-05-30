@@ -1,29 +1,35 @@
-import { useEffect, useState, type Dispatch, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
+
 import { latInputProps, longInputProps } from '../functions/utils';
-import type { IDispatchActions, IPolylineState } from '../types';
+import type { IPolylineState, WGS84point } from '../types';
 import AddIcon from './icons/AddIcon';
 import RemoveIcon from './icons/RemoveIcon';
 
 type Props = {
   polylineState: IPolylineState;
-  dispatch: Dispatch<IDispatchActions>;
+  submitCallback: (points: WGS84point[]) => void;
 };
 
-const PolylineForm = ({ dispatch, polylineState }: Props) => {
-  const [pointsState, setPointsState] = useState([...polylineState.points]);
+const PolylineForm = ({ submitCallback, polylineState }: Props) => {
+  const points = [...polylineState.points];
+  const [lastRenderPropValues, setLastRenderPropValues] = useState(points);
+
+  const propsChanged = !propComparison(points, lastRenderPropValues);
+
+  const [pointsState, setPointsState] = useState([...points]);
+
+  if (propsChanged) {
+    setPointsState([...points]);
+    setLastRenderPropValues([...points]);
+  }
 
   const [newPointLong, setNewPointLong] = useState('');
   const [newPointLat, setNewPointLat] = useState('');
 
-  const resetState = () => {
+  const handleFormReset = () => {
     // remove local changes by defaulting to values from appState
-    setPointsState([...polylineState.points]);
+    setPointsState([...points]);
   };
-
-  useEffect(() => {
-    // reconcile input state with changes from map clicks
-    resetState();
-  }, [polylineState]);
 
   const changePointCoordinate = (
     index: number,
@@ -82,10 +88,7 @@ const PolylineForm = ({ dispatch, polylineState }: Props) => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    dispatch({
-      type: 'polyline replace',
-      payload: [...pointsState],
-    });
+    submitCallback(pointsState);
   };
 
   const addNewPointToPoints = (e: FormEvent<HTMLFormElement>) => {
@@ -160,7 +163,7 @@ const PolylineForm = ({ dispatch, polylineState }: Props) => {
           <button
             type="button"
             className="buttonSecondary"
-            onClick={resetState}
+            onClick={handleFormReset}
           >
             Discard Changes
           </button>
@@ -171,3 +174,16 @@ const PolylineForm = ({ dispatch, polylineState }: Props) => {
 };
 
 export default PolylineForm;
+
+const propComparison = (
+  newState: WGS84point[],
+  oldState: WGS84point[]
+): boolean => {
+  if (newState.length !== oldState.length) return false;
+
+  for (let index = 0; index < newState.length; index++) {
+    if (newState[index] !== oldState[index]) return false;
+  }
+
+  return true;
+};

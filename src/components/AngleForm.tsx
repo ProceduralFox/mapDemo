@@ -1,83 +1,66 @@
-import { useEffect, useState, type Dispatch, type FormEvent } from 'react';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { latInputProps, longInputProps } from '../functions/utils';
-import type { IAngleState, IAngleUnits, IDispatchActions } from '../types';
+import type { IAngleState, IAngleUnits, WGS84point } from '../types';
 
 type Props = {
   angleState: IAngleState;
-  dispatch: Dispatch<IDispatchActions>;
+  submitCallback: (
+    startPoint: WGS84point,
+    firstEndPoint: WGS84point,
+    secondEndPoint: WGS84point,
+    unit: IAngleUnits
+  ) => void;
 };
 
-const AngleForm = ({ dispatch, angleState }: Props) => {
-  const initialComponentState = getInitialComponentStateValues(angleState);
+const AngleForm = ({ angleState, submitCallback }: Props) => {
+  const parsedPropValues = getParsedPropValues(angleState);
 
-  const [startLong, setStartLong] = useState(initialComponentState.startLong);
-  const [startLat, setStartLat] = useState(initialComponentState.startLat);
+  const [lastRenderPropValues, setLastRenderPropValues] = useState({
+    ...parsedPropValues,
+  });
 
-  const [firstEndLong, setFirstEndLong] = useState(
-    initialComponentState.firstEndLong
+  const { propsChanged, changedProps } = propComparison(
+    parsedPropValues,
+    lastRenderPropValues
   );
-  const [firstEndLat, setFirstEndLat] = useState(
-    initialComponentState.firstEndLat
-  );
+  const [formData, setFormData] = useState({ ...parsedPropValues });
 
-  const [secondEndLong, setSecondEndLong] = useState(
-    initialComponentState.secondEndLong
-  );
-  const [secondEndLat, setSecondEndLat] = useState(
-    initialComponentState.secondEndLat
-  );
-
-  const [unit, setUnit] = useState(initialComponentState.unit);
-
-  const resetState = () => {
-    const {
-      startLat,
-      startLong,
-      firstEndLat,
-      firstEndLong,
-      secondEndLat,
-      secondEndLong,
-      unit,
-    } = initialComponentState;
-
-    setStartLat(startLat);
-    setStartLong(startLong);
-    setFirstEndLat(firstEndLat);
-    setFirstEndLong(firstEndLong);
-
-    setSecondEndLat(secondEndLat);
-    setSecondEndLong(secondEndLong);
-
-    setUnit(unit);
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
   };
 
-  useEffect(() => {
-    // reconcile input state with changes from map clicks
-    resetState();
-  }, [angleState]);
+  const handlePropChange = () => {
+    const newState = {
+      ...formData,
+    };
+
+    for (const prop of changedProps) {
+      typeGuardedStateUpdate(prop, parsedPropValues, newState);
+    }
+
+    setFormData({ ...newState });
+  };
+
+  const handleFormDiscard = () => {
+    setFormData({ ...parsedPropValues });
+  };
+
+  if (propsChanged) {
+    setLastRenderPropValues(parsedPropValues);
+    handlePropChange();
+  }
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    dispatch({
-      type: 'angle start',
-      payload: [Number(startLong), Number(startLat)],
-    });
-
-    dispatch({
-      type: 'angle end 1',
-      payload: [Number(firstEndLong), Number(firstEndLat)],
-    });
-
-    dispatch({
-      type: 'angle end 2',
-      payload: [Number(secondEndLong), Number(secondEndLat)],
-    });
-
-    dispatch({
-      type: 'angle unit',
-      payload: unit,
-    });
+    submitCallback(
+      [Number(formData.startLong), Number(formData.startLat)],
+      [Number(formData.firstEndLong), Number(formData.firstEndLat)],
+      [Number(formData.secondEndLong), Number(formData.secondEndLat)],
+      formData.unit
+    );
   };
 
   return (
@@ -88,8 +71,9 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
           <input
             type="number"
             id="startLong"
-            value={startLong}
-            onChange={(e) => setStartLong(e.target.value)}
+            name="startLong"
+            value={formData.startLong}
+            onChange={handleInputChange}
             {...longInputProps}
           />
         </div>
@@ -98,8 +82,9 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
           <input
             type="number"
             id="startLat"
-            value={startLat}
-            onChange={(e) => setStartLat(e.target.value)}
+            name="startLat"
+            value={formData.startLat}
+            onChange={handleInputChange}
             {...latInputProps}
           />
         </div>
@@ -110,8 +95,9 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
           <input
             type="number"
             id="firstEndLong"
-            value={firstEndLong}
-            onChange={(e) => setFirstEndLong(e.target.value)}
+            name="firstEndLong"
+            value={formData.firstEndLong}
+            onChange={handleInputChange}
             {...longInputProps}
           />
         </div>
@@ -120,8 +106,9 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
           <input
             type="number"
             id="firstEndLat"
-            value={firstEndLat}
-            onChange={(e) => setFirstEndLat(e.target.value)}
+            name="firstEndLat"
+            value={formData.firstEndLat}
+            onChange={handleInputChange}
             {...latInputProps}
           />
         </div>
@@ -132,8 +119,9 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
           <input
             type="number"
             id="secondEndLong"
-            value={secondEndLong}
-            onChange={(e) => setSecondEndLong(e.target.value)}
+            name="secondEndLong"
+            value={formData.secondEndLong}
+            onChange={handleInputChange}
             {...longInputProps}
           />
         </div>
@@ -142,8 +130,9 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
           <input
             type="number"
             id="secondEndLat"
-            value={secondEndLat}
-            onChange={(e) => setSecondEndLat(e.target.value)}
+            name="secondEndLat"
+            value={formData.secondEndLat}
+            onChange={handleInputChange}
             {...latInputProps}
           />
         </div>
@@ -152,8 +141,9 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
         <div className="inputLabel">
           <label htmlFor="angleUnit">Angle Display Unit</label>
           <select
-            value={unit}
-            onChange={(e) => setUnit(e.target.value as IAngleUnits)}
+            name="angleUnit"
+            value={formData.secondEndLat}
+            onChange={handleInputChange}
             id="angleUnit"
           >
             <option value="deg">Degree</option>
@@ -165,7 +155,11 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
         <button type="submit" className="buttonPrimary">
           Confirm Changes
         </button>
-        <button type="button" className="buttonSecondary" onClick={resetState}>
+        <button
+          type="button"
+          className="buttonSecondary"
+          onClick={handleFormDiscard}
+        >
           Discard Changes
         </button>
       </div>
@@ -173,7 +167,16 @@ const AngleForm = ({ dispatch, angleState }: Props) => {
   );
 };
 
-const getInitialComponentStateValues = (angleState: IAngleState) => {
+export default AngleForm;
+
+type IParsedPropValues = ReturnType<typeof getParsedPropValues>;
+
+interface IPropComparisonReturn {
+  propsChanged: boolean;
+  changedProps: (keyof IParsedPropValues)[];
+}
+
+const getParsedPropValues = (angleState: IAngleState) => {
   return {
     startLong:
       angleState.sharedPoint !== null
@@ -195,4 +198,35 @@ const getInitialComponentStateValues = (angleState: IAngleState) => {
   };
 };
 
-export default AngleForm;
+const propComparison = (
+  newState: IParsedPropValues,
+  oldState: IParsedPropValues
+) => {
+  const keyNames = Object.getOwnPropertyNames(newState);
+  const result: IPropComparisonReturn = {
+    propsChanged: false,
+    changedProps: [],
+  };
+
+  for (const name of keyNames) {
+    if (
+      !Object.is(
+        newState[name as keyof IParsedPropValues],
+        oldState[name as keyof IParsedPropValues]
+      )
+    ) {
+      result.propsChanged = true;
+      result.changedProps.push(name as keyof IParsedPropValues);
+    }
+  }
+
+  return result;
+};
+
+function typeGuardedStateUpdate<K extends keyof IParsedPropValues>(
+  propName: K,
+  props: IParsedPropValues,
+  newState: IParsedPropValues
+): void {
+  newState[propName] = props[propName];
+}

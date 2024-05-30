@@ -1,5 +1,10 @@
 import type { Dispatch } from 'react';
-import type { IDispatchActions } from '../types';
+import type {
+  IAngleUnits,
+  IDispatchActions,
+  ILengthUnits,
+  WGS84point,
+} from '../types';
 import { IAppState } from '../types';
 import AngleForm from './AngleForm';
 import LengthForm from './LengthForm';
@@ -11,20 +16,90 @@ type Props = {
 };
 
 const Tabs = ({ state, dispatch }: Props) => {
+  const handleAngleSubmit = (
+    sharedStart: WGS84point,
+    firstEnd: WGS84point,
+    secondEnd: WGS84point,
+    unit: IAngleUnits
+  ) => {
+    dispatch({
+      type: 'angle start',
+      payload: sharedStart,
+    });
+
+    dispatch({
+      type: 'angle end 1',
+      payload: firstEnd,
+    });
+
+    dispatch({
+      type: 'angle end 2',
+      payload: secondEnd,
+    });
+
+    dispatch({
+      type: 'angle unit',
+      payload: unit,
+    });
+  };
+
+  const angleSubmit = (
+    startPoint: WGS84point,
+    endPoint: WGS84point,
+    lengthUnit: ILengthUnits,
+    azimuthUnit: IAngleUnits
+  ) => {
+    dispatch({
+      type: 'length start point',
+      payload: startPoint,
+    });
+
+    dispatch({
+      type: 'length end point',
+      payload: endPoint,
+    });
+
+    dispatch({
+      type: 'length unit',
+      payload: lengthUnit,
+    });
+
+    dispatch({
+      type: 'azimuth unit',
+      payload: azimuthUnit,
+    });
+  };
+
+  const polylineSubmit = (points: WGS84point[]) => {
+    console.log('?? !!');
+    dispatch({
+      type: 'polyline replace',
+      payload: [...points],
+    });
+  };
+
   const renderTabContent = () => {
     switch (state.currentlySelectedTool) {
       case 'length':
         return (
-          <LengthForm dispatch={dispatch} lengthState={state.lengthState} />
+          <LengthForm
+            submitCallback={angleSubmit}
+            lengthState={state.lengthState}
+          />
         );
 
       case 'angle':
-        return <AngleForm dispatch={dispatch} angleState={state.angleState} />;
+        return (
+          <AngleForm
+            submitCallback={handleAngleSubmit}
+            angleState={state.angleState}
+          />
+        );
 
       case 'polyline':
         return (
           <PolylineForm
-            dispatch={dispatch}
+            submitCallback={polylineSubmit}
             polylineState={state.polylineState}
           />
         );
